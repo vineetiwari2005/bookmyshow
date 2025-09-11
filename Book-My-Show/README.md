@@ -40,5 +40,4 @@ Some APIs require authentication to access. To authenticate, send a request with
 ## Acknowledgments
 * **Spring Boot**
 * **MySQL**
-## Contributing
-Contributions to the project are welcome. If you find any bugs or have suggestions for improvement, please open an issue or submit a pull request.
+
