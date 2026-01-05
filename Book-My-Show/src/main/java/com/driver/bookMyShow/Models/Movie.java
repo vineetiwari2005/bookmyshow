@@ -7,13 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.ArrayList;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "MOVIES")
+@Table(name = "movies")
 @Data
 @Builder
 @NoArgsConstructor
@@ -24,14 +27,15 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
+    @Column(name = "movie_name", nullable = false)
     private String movieName;
 
-    private Integer duration;
+    private Integer duration; // in minutes
 
     @Column(scale = 2)
     private Double rating;
 
+    @Column(name = "release_date")
     private Date releaseDate;
 
     @Enumerated(value = EnumType.STRING)
@@ -40,6 +44,31 @@ public class Movie {
     @Enumerated(value = EnumType.STRING)
     private Language language;
 
-    @OneToMany(mappedBy = "movie",cascade = CascadeType.ALL)
+    @Column(length = 2000)
+    private String description;
+
+    private String director;
+
+    @Column(length = 1000)
+    private String cast; // Comma-separated actor names
+
+    @Column(name = "poster_url")
+    private String posterUrl;
+
+    @Column(name = "trailer_url")
+    private String trailerUrl;
+
+    @Column(name = "now_showing", nullable = false)
+    private Boolean nowShowing = true;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL)
     private List<Show> shows = new ArrayList<>();
 }

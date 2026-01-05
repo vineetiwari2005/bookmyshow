@@ -79,11 +79,19 @@ public class MovieSearchService {
      */
     public List<Movie> getCurrentlyRunningMovies() {
         List<Movie> allMovies = movieRepository.findAll();
-        Date today = new Date(System.currentTimeMillis());
         
+        // Return movies marked as "now showing" OR that have upcoming shows
         return allMovies.stream()
-                .filter(movie -> movie.getShows().stream()
-                        .anyMatch(show -> !show.getDate().before(today)))
+                .filter(movie -> {
+                    // Check if movie is marked as now showing
+                    if (movie.getNowShowing() != null && movie.getNowShowing()) {
+                        return true;
+                    }
+                    // Otherwise check if it has shows
+                    Date today = new Date(System.currentTimeMillis());
+                    return movie.getShows() != null && movie.getShows().stream()
+                            .anyMatch(show -> !show.getDate().before(today));
+                })
                 .collect(Collectors.toList());
     }
 

@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
  * - Price breakdown (base price + taxes + fees)
  */
 @Entity
-@Table(name = "PAYMENTS")
+@Table(name = "payments")
 @Data
 @Builder
 @NoArgsConstructor
@@ -33,10 +33,10 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "transaction_id", unique = true, nullable = false)
     private String transactionId; // Unique ID for idempotency
 
-    @Column(nullable = false)
+    @Column(name = "session_id", nullable = false)
     private String sessionId; // Links to seat lock session
 
     @ManyToOne
@@ -47,24 +47,26 @@ public class Payment {
     @JoinColumn(name = "ticket_id")
     private Ticket ticket; // Null until booking is confirmed
 
-    @Column(nullable = false)
+    @Column(name = "base_amount", nullable = false)
     private Double baseAmount; // Ticket price without fees
 
-    @Column(nullable = false)
+    @Column(name = "convenience_fee", nullable = false)
     private Double convenienceFee;
 
     @Column(nullable = false)
     private Double tax;
 
-    @Column(nullable = false)
+    @Column(name = "total_amount", nullable = false)
     private Double totalAmount;
 
+    @Column(name = "discount_amount")
     private Double discountAmount = 0.0;
 
+    @Column(name = "promo_code")
     private String promoCode;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
@@ -72,15 +74,20 @@ public class Payment {
     private PaymentStatus status = PaymentStatus.PENDING;
 
     // External payment gateway details
+    @Column(name = "gateway_transaction_id")
     private String gatewayTransactionId;
     
+    @Column(name = "gateway_response")
     private String gatewayResponse;
 
     // Refund details
+    @Column(name = "refund_amount")
     private Double refundAmount;
     
+    @Column(name = "refunded_at")
     private LocalDateTime refundedAt;
     
+    @Column(name = "refund_reason")
     private String refundReason;
 
     @CreationTimestamp
@@ -91,6 +98,7 @@ public class Payment {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
     /**

@@ -76,7 +76,7 @@ public class BookingCancellationService {
         // Find payment for this ticket
         Optional<Payment> paymentOpt = paymentRepository.findAll().stream()
                 .filter(p -> p.getTicket() != null && 
-                           p.getTicket().getTicketId().equals(ticketId))
+                           p.getTicket().getId().equals(ticketId))
                 .findFirst();
 
         if (paymentOpt.isEmpty()) {

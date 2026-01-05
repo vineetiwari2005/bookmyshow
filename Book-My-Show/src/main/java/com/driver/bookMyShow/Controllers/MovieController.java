@@ -1,6 +1,7 @@
 package com.driver.bookMyShow.Controllers;
 
 import com.driver.bookMyShow.Dtos.RequestDtos.MovieEntryDto;
+import com.driver.bookMyShow.Models.Movie;
 import com.driver.bookMyShow.Services.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,20 @@ public class MovieController {
             return new ResponseEntity<>(result, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Get movie details by name (for frontend routing)
+     * GET /movie/{movieName}
+     */
+    @GetMapping("/{movieName}")
+    public ResponseEntity<Movie> getMovieByName(@PathVariable String movieName) {
+        try {
+            Movie movie = movieService.getMovieByName(movieName);
+            return new ResponseEntity<>(movie, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 }

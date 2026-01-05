@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
  * - Released locks free up seats for other users
  */
 @Entity
-@Table(name = "SEAT_LOCKS",
+@Table(name = "seat_locks",
        uniqueConstraints = @UniqueConstraint(columnNames = {"show_id", "seat_number"}))
 @Data
 @Builder

@@ -7,12 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "USERS")
+@Table(name = "users")
 @Data
 @Builder
 @NoArgsConstructor
@@ -33,22 +36,32 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private Gender gender;
 
+    @Column(name = "mobile_no")
     private String mobileNo;
 
-    @Column(unique = true)
+    @Column(name = "email_id", unique = true, nullable = false)
     private String emailId;
 
-    // New authentication fields (nullable to preserve existing data)
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private UserRole role = UserRole.USER; // Default role for backward compatibility
+    @Column(nullable = false)
+    private UserRole role = UserRole.USER;
 
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    // Wallet balance for promo codes and refunds
+    @Column(name = "wallet_balance", nullable = false)
     private Double walletBalance = 0.0;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Ticket> ticketList = new ArrayList<>();

@@ -4,8 +4,12 @@ import com.driver.bookMyShow.Dtos.RequestDtos.PaymentInitiationDto;
 import com.driver.bookMyShow.Dtos.ResponseDtos.PaymentResponseDto;
 import com.driver.bookMyShow.Models.Payment;
 import com.driver.bookMyShow.Services.PaymentService;
+import com.driver.bookMyShow.Services.StripePaymentService;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +25,21 @@ import java.util.Map;
  * - Process payment
  * - Check payment status
  * - Process refund
+ * - Stripe payment intent (NEW)
  */
 @RestController
 @RequestMapping("/api/payment")
+@CrossOrigin(origins = "*")
 public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private StripePaymentService stripePaymentService;
+
+    @Value("${stripe.publishable.key}")
+    private String stripePublishableKey;
 
     /**
      * Initiate payment
@@ -162,5 +174,84 @@ public class PaymentController {
                 .createdAt(payment.getCreatedAt())
                 .completedAt(payment.getCompletedAt())
                 .build();
+    }
+
+    /**
+     * Get Stripe publishable key
+     * GET /api/payment/stripe-config
+     * 
+     * Returns publishable key for frontend Stripe integration
+     */
+    @GetMapping("/stripe-config")
+    public ResponseEntity<Map<String, String>> getStripeConfig() {
+        Map<String, String> config = new HashMap<>();
+        config.put("publishableKey", stripePublishableKey);
+        return ResponseEntity.ok(config);
+    }
+
+    /**
+     * Create Stripe payment intent
+     * POST /api/payment/create-stripe-intent
+     * 
+     * Creates a Stripe payment intent for the booking
+     * Amount should be in smallest currency unit (paise for INR)
+     */
+    @PostMapping("/create-stripe-intent")
+    public ResponseEntity<?> createStripePaymentIntent(@RequestBody Map<String, Object> data) {
+        try {
+            Long amount = Long.valueOf(data.get("amount").toString());
+            String currency = (String) data.getOrDefault("currency", "inr");
+            String sessionId = (String) data.get("sessionId");
+            
+            Map<String, String> metadata = new HashMap<>();
+            if (sessionId != null) {
+                metadata.put("sessionId", sessionId);
+            }
+            
+            PaymentIntent paymentIntent = stripePaymentService.createPaymentIntent(
+                amount, 
+                currency, 
+                metadata
+            );
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("clientSecret", paymentIntent.getClientSecret());
+            response.put("paymentIntentId", paymentIntent.getId());
+            
+            return ResponseEntity.ok(response);
+        } catch (StripeException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid request: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+
+    /**
+     * Confirm Stripe payment
+     * POST /api/payment/confirm-stripe
+     * 
+     * Retrieves and confirms payment status from Stripe
+     */
+    @PostMapping("/confirm-stripe")
+    public ResponseEntity<?> confirmStripePayment(@RequestBody Map<String, String> data) {
+        try {
+            String paymentIntentId = data.get("paymentIntentId");
+            PaymentIntent paymentIntent = stripePaymentService.retrievePaymentIntent(paymentIntentId);
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("status", paymentIntent.getStatus());
+            response.put("paymentIntentId", paymentIntent.getId());
+            response.put("amount", String.valueOf(paymentIntent.getAmount()));
+            
+            return ResponseEntity.ok(response);
+        } catch (StripeException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
     }
 }

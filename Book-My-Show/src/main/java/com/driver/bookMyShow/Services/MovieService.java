@@ -49,4 +49,12 @@ public class MovieService {
         }
         return ammount;
     }
+
+    public Movie getMovieByName(String movieName) throws MovieDoesNotExists {
+        Movie movie = movieRepository.findByMovieName(movieName);
+        if(movie == null) {
+            throw new MovieDoesNotExists();
+        }
+        return movie;
+    }
 }

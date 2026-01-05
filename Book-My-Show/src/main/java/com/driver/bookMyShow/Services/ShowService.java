@@ -104,4 +104,28 @@ public class ShowService {
         Integer movieId = showRepository.getMostShowsMovie();
         return movieRepository.findById(movieId).get().getMovieName();
     }
+
+    public List<Show> getShowsByMovieId(Integer movieId) throws MovieDoesNotExists {
+        Optional<Movie> movieOpt = movieRepository.findById(movieId);
+        if(movieOpt.isEmpty()) {
+            throw new MovieDoesNotExists();
+        }
+        return showRepository.findByMovie(movieOpt.get());
+    }
+
+    public List<Show> getShowsByTheaterId(Integer theaterId) throws TheaterDoesNotExists {
+        Optional<Theater> theaterOpt = theaterRepository.findById(theaterId);
+        if(theaterOpt.isEmpty()) {
+            throw new TheaterDoesNotExists();
+        }
+        return showRepository.findByTheater(theaterOpt.get());
+    }
+
+    public Show getShowById(Integer showId) throws ShowDoesNotExists {
+        Optional<Show> showOpt = showRepository.findById(showId);
+        if(showOpt.isEmpty()) {
+            throw new ShowDoesNotExists();
+        }
+        return showOpt.get();
+    }
 }

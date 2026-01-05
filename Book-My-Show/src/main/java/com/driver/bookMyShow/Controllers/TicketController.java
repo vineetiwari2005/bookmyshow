@@ -2,14 +2,16 @@ package com.driver.bookMyShow.Controllers;
 
 import com.driver.bookMyShow.Dtos.RequestDtos.TicketEntryDto;
 import com.driver.bookMyShow.Dtos.ResponseDtos.TicketResponseDto;
+import com.driver.bookMyShow.Models.Ticket;
 import com.driver.bookMyShow.Services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/ticket")
@@ -25,6 +27,38 @@ public class TicketController {
             return new ResponseEntity<>(result, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Get all bookings for a user
+     * GET /ticket/user/{userId}
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Ticket>> getUserBookings(@PathVariable Integer userId) {
+        try {
+            List<Ticket> bookings = ticketService.getUserBookings(userId);
+            return new ResponseEntity<>(bookings, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Cancel a booking
+     * PUT /ticket/cancel/{ticketId}
+     */
+    @PutMapping("/cancel/{ticketId}")
+    public ResponseEntity<Map<String, String>> cancelBooking(@PathVariable Integer ticketId) {
+        try {
+            ticketService.cancelBooking(ticketId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Booking cancelled successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
     }
 }

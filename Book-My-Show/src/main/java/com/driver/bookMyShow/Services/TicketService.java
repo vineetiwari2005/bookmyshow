@@ -143,4 +143,35 @@ public class TicketService {
         return sb.toString();
     }
 
+    public List<Ticket> getUserBookings(Integer userId) throws UserDoesNotExists {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if(userOpt.isEmpty()) {
+            throw new UserDoesNotExists();
+        }
+        User user = userOpt.get();
+        return user.getTicketList();
+    }
+
+    public void cancelBooking(Integer ticketId) {
+        Optional<Ticket> ticketOpt = ticketRepository.findById(ticketId);
+        if(ticketOpt.isEmpty()) {
+            throw new RuntimeException("Ticket not found");
+        }
+        Ticket ticket = ticketOpt.get();
+        Show show = ticket.getShow();
+        
+        // Release the seats
+        String[] seats = ticket.getBookedSeats().split(",");
+        for(ShowSeat showSeat : show.getShowSeatList()) {
+            for(String seat : seats) {
+                if(showSeat.getSeatNo().equals(seat.trim())) {
+                    showSeat.setIsAvailable(Boolean.TRUE);
+                }
+            }
+        }
+        
+        showRepository.save(show);
+        ticketRepository.delete(ticket);
+    }
+
 }

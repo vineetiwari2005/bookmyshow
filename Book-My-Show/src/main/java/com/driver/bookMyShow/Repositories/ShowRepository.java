@@ -1,6 +1,8 @@
 package com.driver.bookMyShow.Repositories;
 
+import com.driver.bookMyShow.Models.Movie;
 import com.driver.bookMyShow.Models.Show;
+import com.driver.bookMyShow.Models.Theater;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +21,8 @@ public interface ShowRepository extends JpaRepository<Show, Integer> {
 
     @Query(value = "select * from shows where movie_id = :movieId" , nativeQuery = true)
     public List<Show> getAllShowsOfMovie(@Param("movieId")Integer movieId);
+
+    public List<Show> findByMovie(Movie movie);
+    
+    public List<Show> findByTheater(Theater theater);
 }

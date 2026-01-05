@@ -22,7 +22,7 @@ public interface SeatLockRepository extends JpaRepository<SeatLock, Integer> {
     /**
      * Find active lock for a specific seat in a show
      */
-    @Query("SELECT sl FROM SeatLock sl WHERE sl.show.showId = :showId " +
+    @Query("SELECT sl FROM SeatLock sl WHERE sl.show.id = :showId " +
            "AND sl.seatNumber = :seatNumber " +
            "AND sl.status = 'LOCKED' " +
            "AND sl.expiryTime > :currentTime")
@@ -33,7 +33,7 @@ public interface SeatLockRepository extends JpaRepository<SeatLock, Integer> {
     /**
      * Find all active locks for a show
      */
-    @Query("SELECT sl FROM SeatLock sl WHERE sl.show.showId = :showId " +
+    @Query("SELECT sl FROM SeatLock sl WHERE sl.show.id = :showId " +
            "AND sl.status = 'LOCKED' " +
            "AND sl.expiryTime > :currentTime")
     List<SeatLock> findActiveLocksForShow(@Param("showId") Integer showId,

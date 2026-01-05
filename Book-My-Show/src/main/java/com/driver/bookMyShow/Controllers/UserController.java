@@ -3,6 +3,7 @@ package com.driver.bookMyShow.Controllers;
 import com.driver.bookMyShow.Dtos.RequestDtos.UserEntryDto;
 import com.driver.bookMyShow.Dtos.ResponseDtos.TicketResponseDto;
 import com.driver.bookMyShow.Models.Ticket;
+import com.driver.bookMyShow.Models.User;
 import com.driver.bookMyShow.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,20 @@ public class UserController {
             return new ResponseEntity<>(result, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Get user profile by ID
+     * GET /user/{userId}
+     */
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUserProfile(@PathVariable Integer userId) {
+        try {
+            User user = userService.getUserById(userId);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 }

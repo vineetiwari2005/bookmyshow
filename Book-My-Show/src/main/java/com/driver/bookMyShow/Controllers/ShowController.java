@@ -3,6 +3,7 @@ package com.driver.bookMyShow.Controllers;
 import com.driver.bookMyShow.Dtos.RequestDtos.ShowEntryDto;
 import com.driver.bookMyShow.Dtos.RequestDtos.ShowSeatEntryDto;
 import com.driver.bookMyShow.Dtos.RequestDtos.ShowTimingsDto;
+import com.driver.bookMyShow.Models.Show;
 import com.driver.bookMyShow.Services.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/show")
+@CrossOrigin(origins = "*")
 public class ShowController {
 
     @Autowired
@@ -54,6 +56,36 @@ public class ShowController {
         try {
             String movie = showService.movieHavingMostShows();
             return new ResponseEntity<>(movie, HttpStatus.FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/by-movie/{movieId}")
+    public ResponseEntity<List<Show>> getShowsByMovie(@PathVariable Integer movieId) {
+        try {
+            List<Show> shows = showService.getShowsByMovieId(movieId);
+            return new ResponseEntity<>(shows, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/by-theater/{theaterId}")
+    public ResponseEntity<List<Show>> getShowsByTheater(@PathVariable Integer theaterId) {
+        try {
+            List<Show> shows = showService.getShowsByTheaterId(theaterId);
+            return new ResponseEntity<>(shows, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/{showId}")
+    public ResponseEntity<Show> getShowById(@PathVariable Integer showId) {
+        try {
+            Show show = showService.getShowById(showId);
+            return new ResponseEntity<>(show, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }

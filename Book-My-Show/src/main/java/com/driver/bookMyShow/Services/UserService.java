@@ -46,4 +46,12 @@ public class UserService {
         }
         return ticketResponseDtos;
     }
+
+    public User getUserById(Integer userId) throws UserDoesNotExists {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if(userOpt.isEmpty()) {
+            throw new UserDoesNotExists();
+        }
+        return userOpt.get();
+    }
 }
